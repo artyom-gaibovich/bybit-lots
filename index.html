@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="style.css">
+    <title>Document</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+          rel="stylesheet">
+
+</head>
+<body>
+
+<div id="root">
+
+</div>
+
+<script>
+
+    const state = {
+        time: new Date(),
+        lots: [
+            {
+                id: 1,
+                name: 'CRYPUSDT',
+                description: 'CRYPTOUSDT Desc',
+                price: 16
+            },
+            {
+                id: 2,
+                name: 'TRAMPUSDT',
+                description: 'TRAMPUSDT Desc',
+                price: 32
+            }
+        ]
+    }
+
+    function Logo() {
+        const logo = document.createElement('img');
+        logo.classList.add('logo');
+        logo.src = 'logo.png';
+        return logo;
+    }
+
+    function Header() {
+        const header = document.createElement('header');
+        header.classList.add('header');
+        header.append(Logo())
+        return header;
+    }
+
+    function Clock({time}) {
+        const clock = document.createElement('div');
+        clock.classList.add('clock');
+        clock.innerText = time.toLocaleTimeString();
+        return clock;
+    }
+
+    function Lot({price, name, description}) {
+        const lot = document.createElement('article')
+        lot.classList.add('lot');
+        const priceEl = document.createElement('div');
+        priceEl.innerText = price;
+        const h1 = document.createElement('h1');
+        h1.innerText = name
+        const p = document.createElement('p');
+        p.innerText = description;
+        lot.append(h1, priceEl, p)
+        return lot;
+    }
+
+    function Lots({lots}) {
+        const list = document.createElement('lots')
+        list.classList.add('lots');
+        lots.forEach((lot) => {
+            list.append(Lot(lot))
+        })
+        return list;
+    }
+
+    function App({state}) {
+        const app = document.createElement('app');
+        app.classList.add('app');
+        app.append(Header(), Clock({time: state.time}), Lots({lots: state.lots}));
+        return app;
+    }
+
+
+    render(App({state}), document.getElementById('root'))
+
+    function render(newDom, realDomRoot) {
+        realDomRoot.append(newDom)
+    }
+</script>
+</body>
+</html>

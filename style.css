@@ -1,0 +1,37 @@
+#root {
+    font-family: "Roboto", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+}
+
+.header, .logo {
+    display: block;
+}
+.app {
+
+}
+.lots {
+    display: flex;
+    flex-direction: column;
+    gap: 20px
+
+}
+
+.lot {
+    width: 50%;
+    border: 1px solid #d0d0d0;
+    display: flex;
+    flex-direction: column;
+}
+
+
+
+
+.clock {
+    border: 1px solid #d0d0d0;
+    padding: 10px 20px;
+}
+
+
+
