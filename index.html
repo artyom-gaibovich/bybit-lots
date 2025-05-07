@@ -16,7 +16,6 @@
 <body>
 
 <div id="root">
-
 </div>
 
 
@@ -68,17 +67,47 @@
     }
 
     function Logo() {
-        const logo = document.createElement('img');
-        logo.classList.add('logo');
-        logo.src = 'logo.png';
-        return logo;
+        return {
+            type: 'header',
+            props: {
+                className: 'header'
+            },
+        }
     }
 
+
+
     function Header() {
-        const header = document.createElement('header');
-        header.classList.add('header');
-        header.append(Logo())
-        return header;
+        return {
+            type: 'header',
+            props: {
+                className: 'header',
+                children: [
+                    {
+                        type: 'Block',
+                        props: {
+                            children: [
+                                {
+                                    type: 'Logo'
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+
+        }
+    }
+
+    function Block (props) {
+        return {
+            div: 'div',
+            props: {
+                className: 'block',
+                children: props.content
+            },
+
+        }
     }
 
     function Clock({time}) {
@@ -131,11 +160,42 @@
     }
 
     function App({state}) {
-        const app = document.createElement('app');
+        return {
+            type: 'div',
+            props: {
+                className: 'app',
+                children: [
+                    {
+                        type: 'Header',
+                        props: {},
+                    },
+                    {
+                        type: "Clock",
+                        props: {
+                            time: state.time,
+                        }
+                    },
+                    {
+                        type: "Lots",
+                        props: {
+                            lots: state.lots,
+                        }
+                    }
+                ]
+
+            },
+        }
+
+
+
+
+        /*const app = document.createElement('app');
         app.classList.add('app');
         app.append(Header(), Clock({time: state.time}), Lots({lots: state.lots}));
-        return app;
+        return app;*/
     }
+
+
 
     renderView(state)
 
@@ -149,12 +209,11 @@
     }, 1000)
 
 
-
     const stream = {
-        subscribe (channel, listener) {
+        subscribe(channel, listener) {
             const match = /price-(\d+)/.exec(channel)
             if (match) {
-                setInterval( () => {
+                setInterval(() => {
                     listener({
                         id: parseInt(match[1]),
                         price: Math.round((Math.random() * 10 + 30))
@@ -173,7 +232,6 @@
             lots,
         }
         renderView(state)
-
 
 
         const onPrice = (data) => {
@@ -203,9 +261,72 @@
         )
     }
 
-    function render(newDom, realDomRoot) {
-        realDomRoot.innerHTML = '';
-        realDomRoot.append(newDom)
+
+    function render(virtualDom, realDomRoot) {
+        const virtualDomRoot = document.createElement(realDomRoot.tagName)
+        virtualDomRoot.id = realDomRoot.id
+        virtualDomRoot.append(virtualDom)
+        sync(virtualDomRoot, realDomRoot)
+    }
+
+    function sync(virtualNode, realNode) {
+
+        if (virtualNode.id !== realNode.id) {
+            realNode.id = virtualNode.id
+        }
+        if (virtualNode.className !== realNode.className) {
+            realNode.className = virtualNode.className
+        }
+
+        if (virtualNode.attributes) {
+            Array.from(virtualNode.attributes).forEach((attr) => {
+                realNode[attr.name] = attr.value
+            })
+        }
+
+        if (virtualNode.nodeValue !== realNode.nodeValue) {
+            realNode.nodeValue = virtualNode.nodeValue
+        }
+
+
+        const virtualChildren = virtualNode.childNodes;
+        const realChildren = realNode.childNodes;
+
+        for (let i = 0; i < virtualChildren.length || i < realChildren.length; i++) {
+            const virtual = virtualChildren[i]
+            const real = realChildren[i]
+
+
+            if (virtual === undefined && real !== undefined) {
+                realNode.remove(real)
+            }
+
+            if (virtual !== undefined && real !== undefined && virtual.tagName === real.tagName) {
+                sync(virtual, real)
+            }
+
+            if (virtual !== undefined && real !== undefined && virtual.tagName !== real.tagName) {
+                const newReal = createRealNodeByVirtual(virtual)
+                sync(virtual, newReal)
+                realNode.replaceChild(newReal, real)
+            }
+
+            if (virtual !== undefined && real === undefined) {
+                const newReal = createRealNodeByVirtual(virtual)
+                sync(virtual, newReal)
+                realNode.appendChild(newReal)
+            }
+
+        }
+
+        function createRealNodeByVirtual(virtual) {
+            if (virtual.nodeType === Node.TEXT_NODE) {
+                return document.createTextNode('')
+            }
+            return document.createElement(virtual.tagName)
+        }
+
+
     }
 
 
